@@ -8,14 +8,28 @@ export const useSchedule = () => {
     const [selectedDate, setSelectedDate] = useState<Date>(startOfToday());
     const dateString = format(selectedDate, 'yyyy-MM-dd');
 
-    const { data: categories = [], isLoading: isLoadingCategories, isError: isErrorCategories } = useQuery({
+    const { data: categories = [], isLoading: isLoadingCategories, isError: isErrorCategories, error: errorCategories } = useQuery({
         queryKey: ['categories'],
-        queryFn: () => reservationService.getCategories(),
+        queryFn: async () => {
+            try {
+                return await reservationService.getCategories();
+            } catch (err) {
+                console.error('Categories fetch error:', err);
+                throw err;
+            }
+        },
     });
 
-    const { data: reservations = [], isLoading: isLoadingReservations, isError: isErrorReservations, refetch } = useQuery({
+    const { data: reservations = [], isLoading: isLoadingReservations, isError: isErrorReservations, error: errorReservations, refetch } = useQuery({
         queryKey: ['reservations', dateString],
-        queryFn: () => reservationService.getReservationsByDate(dateString),
+        queryFn: async () => {
+            try {
+                return await reservationService.getReservationsByDate(dateString);
+            } catch (err) {
+                console.error('Reservations fetch error:', err);
+                throw err;
+            }
+        },
     });
 
     const goToNextDay = () => setSelectedDate((prev) => addDays(prev, 1));
@@ -49,6 +63,7 @@ export const useSchedule = () => {
         schedules,
         isLoading: isLoadingCategories || isLoadingReservations,
         isError: isErrorCategories || isErrorReservations,
+        error: errorCategories || errorReservations,
         goToNextDay,
         goToPrevDay,
         goToToday,

@@ -14,6 +14,7 @@ export default function HomePage() {
     schedules,
     isLoading,
     isError,
+    error,
     goToNextDay,
     goToPrevDay,
     goToToday
@@ -39,7 +40,12 @@ export default function HomePage() {
         ) : isError ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-xl font-medium text-destructive">데이터를 불러오는 중 오류가 발생했습니다.</p>
-            <p className="text-sm text-muted-foreground mt-1">Supabase 설정(환경 변수) 및 인터넷 연결을 확인해 주세요.</p>
+            {error && (
+              <p className="text-sm border bg-destructive/10 text-destructive p-2 rounded mt-2 max-w-lg overflow-auto text-left whitespace-pre-wrap">
+                Error Detail: {error instanceof Error ? error.message : JSON.stringify(error)}
+              </p>
+            )}
+            <p className="text-sm text-muted-foreground mt-4">Supabase 설정(환경 변수) 및 인터넷 연결을 확인해 주세요.</p>
             <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>다시 시도</Button>
           </div>
         ) : schedules.length > 0 ? (
